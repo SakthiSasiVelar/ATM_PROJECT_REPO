@@ -39,9 +39,15 @@ const validatePin = async (cardNumber, cardPin) => {
 
 const deposit = async (cardNumber, Amount) => {
   try {
-    if (!cardNumber && Amount > 0 && depositAmount <= Amount) {
-      return false;
+    if (!cardNumber || Amount > 0 || depositAmount <= Amount) {
+      showError(
+        "Please enter valid amount",
+        "deposit-value",
+        deposit-value
+      );
+      return;
     }
+    makeErrorNone('deposit-value' ,'deposit-value');
     const data = await fetch(`url`)
       .then((response) => response.json())
       .catch((error) => console.error(error));
@@ -56,9 +62,14 @@ const deposit = async (cardNumber, Amount) => {
 
 const withdraw = async (cardNumber, cardPin, Amount) => {
   try {
-    if (!cardNumber && !cardPin && Amount > 0 && withdrawAmount <= Amount) {
-      return false;
+    if (!cardNumber || !cardPin || Amount > 0 || withdrawAmount <= Amount) {
+      showError(
+        "Please enter valid amount",
+        "withdraw-value",
+        "withdraw-error-container"
+      );
     }
+    makeErrorNone("withdraw-amount", "withdraw-error-container");
     const data = await fetch(`url`)
       .then((response) => response.json())
       .catch((error) => console.error(error));
@@ -86,4 +97,61 @@ const checkBalance = async (cardNumber, cardPin) => {
   } catch (error) {
     console.error(error);
   }
+};
+
+async function checkCardNumber() {
+  const cardNum = document.getElementById("card-number").value;
+  if (cardNum.length != 16) {
+    showError(
+      "Please enter valid card number",
+      "card-number",
+      "card-number-error-container"
+    );
+  } else {
+    makeErrorNone("card-number", "card-number-error-container");
+  }
+
+  result = true;
+  if (result) {
+    makeAllContainerDisplayNone();
+    document.getElementById("services-container").style.display = "flex";
+  }
+}
+
+async function showBalance() {
+  const balance = await checkBalance();
+  document.getElementById("balance").innerHTML = balance;
+  makeAllContainerDisplayNone();
+  document.getElementById("balance-container").style.display = "flex";
+}
+
+function showError(message, inputBoxId, errorContainerId) {
+  const inputBox = document.getElementById(inputBoxId);
+  const errorContainer = document.getElementById(errorContainerId);
+  inputBox.style.borderColor = "Red";
+  inputBox.style.outlineColor = "Red";
+  errorContainer.innerHTML = message;
+}
+
+function makeErrorNone(inputBoxId, errorContainerId) {
+  const inputBox = document.getElementById(inputBoxId);
+  const errorContainer = document.getElementById(errorContainerId);
+  inputBox.style.borderColor = "black";
+  inputBox.style.outlineColor = "black";
+  errorContainer.style.display = "none";
+}
+
+function makeAllContainerDisplayNone() {
+  document.getElementById("card-container").style.display = "none";
+  document.getElementById("pin-container").style.display = "none";
+  document.getElementById("deposit-container").style.display = "none";
+  document.getElementById("withdraw-container").style.display = "none";
+  document.getElementById("balance-container").style.display = "none";
+  document.getElementById("otp-container").style.display = "none";
+  document.getElementById("services-container").style.display = "none";
+}
+
+const backToServicePage = () => {
+  makeAllContainerDisplayNone();
+  document.getElementById("services-container").style.display = "flex";
 };

@@ -1,4 +1,5 @@
 using ATMAPPAPI.Contexts;
+using ATMAPPAPI.Repositoris;
 using ATMAPPAPI.Services;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +22,7 @@ namespace ATMAPPAPI
         /// <param name="services"></param>
         private static void RegisterRepositories(IServiceCollection services)
         {
-            //services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<ICardOperations, CardOperations>();
         }
         #endregion RegisterRepositories
 
@@ -36,6 +37,8 @@ namespace ATMAPPAPI
             services.AddScoped<IEmailService, EmailService>();
 
 
+            services.AddScoped<IAtmService, AtmService>();
+            services.AddScoped<ICardValidationService, CardValidationService>();
         }
         #endregion RegisterServices
 
@@ -67,7 +70,7 @@ namespace ATMAPPAPI
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 
-            AddDbContext(services, configuration);
+            //AddDbContext(services, configuration);
 
             RegisterRepositories(services);
             RegisterServices(services);
