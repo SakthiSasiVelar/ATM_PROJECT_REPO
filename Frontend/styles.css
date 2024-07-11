@@ -46,6 +46,7 @@
     width: 250px;
     padding: 0.3rem 1rem;
     font-size: large;
+    outline: none;
  }
 
  .submit-button{
@@ -55,11 +56,20 @@
     border-radius: 10px;
     background-color: lightgreen;
     text-align: center;
+    cursor: pointer;
  }
 
- #card-container{
-    display: none;
+ .back-button{
+    width: 100px;
+    padding: 0.3rem 1rem;
+    font-size: large;
+    border-radius: 10px;
+    background-color: grey;
+    text-align: center;
+    cursor: pointer;
+    color: white;
  }
+
 
  .service-btn{
     width: 170px;
@@ -69,7 +79,10 @@
     outline: none;
     border: none;
     font-size: large; 
+    cursor: pointer;
  }
+
+
 
  #services-container{
     display: none;
@@ -80,7 +93,7 @@
     font-weight: 600;
  }
 
- #balance-container{
+  #balance-container{
     display: none;
  }
  .deposit-input-box{
@@ -98,5 +111,12 @@
  }
 
  #withdraw-container{
+    display: none;
+ }
+ #otp-container{
+    display: none;
+ }
+
+ #pin-container{
     display: none;
  }

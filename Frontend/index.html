@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ATM Project</title>
     <link rel="stylesheet" href="styles.css" />
+    <script src="script.js" defer></script>
   </head>
   <body>
     <div class="outer-container">
@@ -12,20 +13,21 @@
         <div class="title">WELCOME TO ATM</div>
         <div id="card-container" class="input-label-container">
             <div class="heading">Enter the card number</div>
-            <input type="number" class="card-num-input-box" />
+            <input type="number" class="card-num-input-box" id="card-number" />
             <div id="card-number-error-container"></div>
-            <button class="submit-button">Enter</button>
+            <button class="submit-button" onclick="checkCardNumber()">Enter</button>
         </div>
         <div id="services-container" class="input-label-container">
              <div class="heading">SERVICES</div>
-             <button class="service-btn">Check Balance</button>
-             <button class="service-btn">Deposit</button>
-             <button class="service-btn">Withdraw</button>
+             <button class="service-btn" onclick="showBalance()">Check Balance</button>
+             <button class="service-btn" onclick="showDeposit()">Deposit</button>
+             <button class="service-btn" onclick="showWithdraw()">Withdraw</button>
         </div>
         <div id="balance-container" class="input-label-container">
             <div class="heading">CHECK BALANCE</div>
             <div class="service-label-value">Available Balance :</div>
-            <div class="service-label-value">Rs.123456</div>
+            <div class="service-label-value" id="balance">Rs.123456</div>
+            <button class="back-button" onclick="backToServicePage()">Back</button>
         </div>
         <div id="deposit-container" class="input-label-container">
              <div class="heading">DEPOSIT</div>
@@ -33,6 +35,7 @@
              <input type="number" class="deposit-input-box" />
              <div id="deposit-error-container"></div>
              <button class="submit-button">Deposit</button>
+             <button class="back-button" onclick="backToServicePage()">Back</button>
         </div>
         <div id="withdraw-container" class="input-label-container">
              <div class="heading">WITHDRAW</div>
@@ -40,12 +43,21 @@
              <input type="number" class="deposit-input-box" />
              <div id="withdraw-error-container"></div>
              <button class="submit-button">Withdraw</button>
+             <button class="back-button" onclick="backToServicePage()">Back</button>
         </div>
         <div id="otp-container" class="input-label-container">
             <div class="heading">OTP</div>
              <div class="service-label-value">Enter OTP :</div>
              <input type="number" class="deposit-input-box" />
              <div id="otp-error-container"></div>
+             <button class="submit-button">Submit</button>
+             
+        </div>
+         <div id="pin-container" class="input-label-container">
+            <div class="heading">PIN</div>
+             <div class="service-label-value">Enter PIN :</div>
+             <input type="number" class="deposit-input-box" />
+             <div id="pin-error-container"></div>
              <button class="submit-button">Submit</button>
         </div>
       </div>
