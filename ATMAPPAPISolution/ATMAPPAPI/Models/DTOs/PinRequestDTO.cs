@@ -1,8 +1,8 @@
 ﻿namespace ATMAPPAPI.Models.DTOs
 {
-    public class PinRequest
+    public class PinRequestDTO
     {
-        public int UserId { get; set; }
+        public string AccountNumber { get; set; }
         public string Pin { get; set; }
     }
 }

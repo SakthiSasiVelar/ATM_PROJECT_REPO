@@ -1,6 +1,6 @@
 ﻿namespace ATMAPPAPI.Models.DTOs
 {
-    public class CardInfoRequest
+    public class CardInfoRequestDTO
     {
         public string CardNumber { get; set; }
         public string CVV { get; set; }
