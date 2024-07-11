@@ -2,37 +2,42 @@
 using System.Collections.Concurrent;
 using System.Net.Mail;
 using System.Net;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Gmail.v1.Data;
+using Google.Apis.Gmail.v1;
+using Google.Apis.Services;
+using Google.Apis.Util.Store;
+using System.Text;
+using Google.Apis.Auth.OAuth2.Flows;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace ATMAPPAPI.Services
 {
     public class EmailService : IEmailService
     {
-        //Store OTPs
         private readonly ConcurrentDictionary<string, (string Otp, DateTime Timestamp)> otpStore
         = new ConcurrentDictionary<string, (string Otp, DateTime Timestamp)>();
 
-        // Generate a random four-digit PIN
-        private string GenerateOTP()
+        private readonly IMemoryCache _cache;
+
+        public EmailService(IMemoryCache cache)
         {
-            
-            var random = new Random();
-            var pin = random.Next(1000, 9999).ToString();
-            return pin;
+            _cache = cache;
         }
 
-        //Send OTP Method : Return string message
+
         public async Task<string> SendOTPMail(string toEmailAddress)
         {
-           
             var pin = GenerateOTP();
-
-           
             otpStore[toEmailAddress] = (pin, DateTime.UtcNow);
+            _cache.Set("OtpStore", otpStore);
+
 
             var smtpClient = new SmtpClient("smtp.gmail.com")
             {
                 Port = 587,
-                Credentials = new NetworkCredential("i62175973@gmail.com", "Error$1234"),
+                Credentials = new NetworkCredential("i62175973@gmail.com", "emou qcfn elfe nldy"),
                 EnableSsl = true,
             };
 
@@ -56,28 +61,36 @@ namespace ATMAPPAPI.Services
             }
         }
 
-        //Verify OTP Method : Return string message
-        public Task<string> VerifyOtp(string toEmailAddress, string enteredOtp)
+
+
+        private string GenerateOTP()
         {
+            var random = new Random();
+            return random.Next(1000, 9999).ToString();
+        }
+
+        public string VerifyOtp(string toEmailAddress, string enteredOtp)
+        {
+            var otpStore = _cache.Get<ConcurrentDictionary<string, (string, DateTime)>>("OtpStore");
             if (otpStore.TryGetValue(toEmailAddress, out var otpData))
             {
-                if ((DateTime.UtcNow - otpData.Timestamp).TotalHours > 2)
+                if ((DateTime.UtcNow - otpData.Item2).TotalHours > 2)
                 {
-                    return Task.FromResult("OTP has expired.");
+                    return "OTP has expired.";
                 }
 
-                if (otpData.Otp == enteredOtp)
+                if (otpData.Item1 == enteredOtp)
                 {
-                    return Task.FromResult("OTP verified successfully.");
+                    return "OTP verified successfully.";
                 }
                 else
                 {
-                    return Task.FromResult("Invalid OTP.");
+                    return "Invalid OTP.";
                 }
             }
             else
             {
-                return Task.FromResult("OTP not found for the given email.");
+                return "OTP not found for the given email.";
             }
         }
     }

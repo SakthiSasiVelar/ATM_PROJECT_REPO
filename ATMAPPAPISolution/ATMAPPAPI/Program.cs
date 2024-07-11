@@ -33,6 +33,10 @@ namespace ATMAPPAPI
         /// <param name="services"></param>
         private static void RegisterServices(IServiceCollection services)
         {
+            //services.AddScoped<IUserService, UserService>(); 
+            services.AddScoped<IEmailService, EmailService>();
+
+
             services.AddScoped<IAtmService, AtmService>();
             services.AddScoped<ICardValidationService, CardValidationService>();
         }
@@ -48,6 +52,7 @@ namespace ATMAPPAPI
         private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
             services.AddControllers();
+            services.AddMemoryCache();
             //.AddJsonOptions(options =>
             //{
             //    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
