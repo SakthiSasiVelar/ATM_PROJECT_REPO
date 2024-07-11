@@ -4,6 +4,6 @@
     {
         Task<string> SendOTPMail(string toEmailAddress);
 
-        Task<string> VerifyOtp(string toEmailAddress, string enteredOtp);
+        string VerifyOtp(string toEmailAddress, string enteredOtp);
     }
 }

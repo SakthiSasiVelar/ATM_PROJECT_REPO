@@ -1,4 +1,5 @@
 using ATMAPPAPI.Contexts;
+using ATMAPPAPI.Services;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -32,6 +33,7 @@ namespace ATMAPPAPI
         private static void RegisterServices(IServiceCollection services)
         {
             //services.AddScoped<IUserService, UserService>(); 
+            services.AddScoped<IEmailService, EmailService>();
 
 
         }
@@ -47,6 +49,7 @@ namespace ATMAPPAPI
         private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
             services.AddControllers();
+            services.AddMemoryCache();
             //.AddJsonOptions(options =>
             //{
             //    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
