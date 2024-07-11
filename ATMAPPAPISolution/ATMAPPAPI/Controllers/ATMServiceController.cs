@@ -33,14 +33,14 @@ namespace ATMAPPAPI.Controllers
         }
 
         [HttpPost("Deposite")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AccountDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Deposit(TransactionDTO transactionDTO)
         {
             try
             {
-                await _atmService.Deposit(transactionDTO.AccountNumber, transactionDTO.Amount);
-                return Ok();
+               var account= await _atmService.Deposit(transactionDTO.AccountNumber, transactionDTO.Amount);
+                return Ok(account);
             }
             catch (Exception ex)
             {
@@ -49,14 +49,14 @@ namespace ATMAPPAPI.Controllers
         }
 
         [HttpPost("Withdraw")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AccountDTO),StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Withdraw(TransactionDTO transactionDTO)
         {
             try
             {
-                await _atmService.Withdraw(transactionDTO.AccountNumber, transactionDTO.Amount);
-                return Ok();
+                var account=await _atmService.Withdraw(transactionDTO.AccountNumber, transactionDTO.Amount);
+                return Ok(account);
             }
             catch (Exception ex)
             {
@@ -65,7 +65,7 @@ namespace ATMAPPAPI.Controllers
         }
 
         [HttpPost("validate-card")]
-        [ProducesResponseType(typeof(string),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AccountDTO),StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
         public async Task<ActionResult> ValidateCardNumber([FromBody] string CardNumber)
         {
@@ -75,10 +75,10 @@ namespace ATMAPPAPI.Controllers
                 var ExpiryDate = "2025-07-11T10:45:28.323Z";
                 DateTime expiryDateTime = DateTime.Parse(ExpiryDate);
                 //var accountNo = await _atmService.ValidateCard(cardInfoRequestDTO.CardNumber, cardInfoRequestDTO.CVV, cardInfoRequestDTO.ExpiryDate);
-                var accountNo = await _atmService.ValidateCard(CardNumber, CVV, expiryDateTime);
-                if (accountNo != null)
+                var account = await _atmService.ValidateCard(CardNumber, CVV, expiryDateTime);
+                if (account != null)
                 {
-                    return Ok(accountNo);
+                    return Ok(account);
                 }
                 return NotFound(new ErrorModel(404, "Invalid card details"));
             }

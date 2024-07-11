@@ -2,6 +2,7 @@
 using ATMAPPAPI.Models;
 using ATMAPPAPI.Models.DTOs;
 using ATMAPPAPI.Repositoris;
+using System.Security.Principal;
 using System.Text.Json;
 
 namespace ATMAPPAPI.Services
@@ -16,7 +17,7 @@ namespace ATMAPPAPI.Services
             _cardOperations = cardOperations;
         }
 
-        public async Task Deposit(string accountNo, decimal amount)
+        public async Task<AccountDTO> Deposit(string accountNo, decimal amount)
         {
             var cardInfo = await _cardOperations.FindCardInfoAsync("accountNumber", accountNo);
             if(cardInfo != null)
@@ -26,7 +27,12 @@ namespace ATMAPPAPI.Services
                 cardInfo.Balance = parsedBalanced.ToString();
                 // Update the card info in the JSON file
                 await _cardOperations.UpdateCardInfoAsync(cardInfo);
+                AccountDTO accountDTO = new AccountDTO();
+                accountDTO.CurrentBalance = parsedBalanced;
+                accountDTO.AccountNumber = cardInfo.AccountNumber;
+                return accountDTO;
             }
+            return null;
         }
 
        
@@ -52,7 +58,7 @@ namespace ATMAPPAPI.Services
             throw new NotImplementedException();
         }
 
-        public async Task<string> ValidateCard(string cardNumber, string cvv, DateTime expiryDate)
+        public async Task<AccountDTO> ValidateCard(string cardNumber, string cvv, DateTime expiryDate)
         {
             if (await _cardValidationService.ValidateCard(cardNumber, cvv, expiryDate))
             {
@@ -60,7 +66,9 @@ namespace ATMAPPAPI.Services
                
                 if (cardInfo != null)
                 {
-                    return cardInfo.AccountNumber;
+                    AccountDTO accountDTO = new AccountDTO();
+                    accountDTO.AccountNumber = cardInfo.AccountNumber;
+                    accountDTO.CurrentBalance = decimal.Parse(cardInfo.Balance);
                 }
             }
             return null;
@@ -81,7 +89,7 @@ namespace ATMAPPAPI.Services
             return false;
         }
 
-        public async Task Withdraw(string accountNo, decimal amount)
+        public async Task<AccountDTO> Withdraw(string accountNo, decimal amount)
         {
             var cardInfo = await _cardOperations.FindCardInfoAsync("accountNumber", accountNo);
             if (cardInfo != null)
@@ -93,8 +101,13 @@ namespace ATMAPPAPI.Services
                     cardInfo.Balance = parsedBalanced.ToString();
                     // Update the card info in the JSON file
                     await _cardOperations.UpdateCardInfoAsync(cardInfo);
+                    AccountDTO accountDTO = new AccountDTO();
+                    accountDTO.CurrentBalance = parsedBalanced;
+                    accountDTO.AccountNumber = cardInfo.AccountNumber;
+                    return accountDTO;
                 }
             }
+            return null;
         }
 
        
