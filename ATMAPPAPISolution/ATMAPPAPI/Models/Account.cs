@@ -8,5 +8,6 @@ namespace ATMAPPAPI.Models
         public int UserId { get; set; }
         public decimal Balance { get; set; }
         public List<Transaction> Transactions { get; set; }
+        public User User { get; set; }
     }
 }
