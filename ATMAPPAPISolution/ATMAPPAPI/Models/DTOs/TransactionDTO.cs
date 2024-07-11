@@ -1,8 +1,8 @@
 ﻿namespace ATMAPPAPI.Models.DTOs
 {
-    public class TransactionRequest
+    public class TransactionDTO
     {
-        public int UserId { get; set; }
+        public string AccountNumber { get; set; }
         public decimal Amount { get; set; }
     }
 }
