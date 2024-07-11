@@ -3,14 +3,31 @@ let cardPin = "1234";
 const depositAmount = 20000;
 const withdrawAmount = 10000;
 
+var accountNumber;
+var currentBalance;
+
+const baseUrl = "https://localhost:7151/api/ATMService"
+
 const validateCard = async (cardNumber) => {
   try {
-    if (!cardNumber && cardNumber.length === 16) {
-      return false;
-    }
-    const data = await fetch(`url`)
+    const data = await fetch(`${baseUrl}/validate-card`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(cardNumber),
+    })
       .then((response) => response.json())
-      .catch((error) => console.error(error));
+      .then((response) => {
+        accountNumber = response.accountNumber;
+        currentBalance = response.currentBalance;
+        return true;
+      })
+      .catch((error) => {
+        console.error(error)
+        return false;
+
+      });
 
     if (data) {
       return true;
@@ -37,23 +54,24 @@ const validatePin = async (cardNumber, cardPin) => {
   }
 };
 
-const deposit = async (cardNumber, Amount) => {
+const deposit = async (Amount) => {
   try {
-    if (!cardNumber || Amount > 0 || depositAmount <= Amount) {
-      showError(
-        "Please enter valid amount",
-        "deposit-value",
-        deposit-value
-      );
-      return;
-    }
-    makeErrorNone('deposit-value' ,'deposit-value');
-    const data = await fetch(`url`)
+    const data = await fetch(`${baseUrl}/Deposit`, {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+      accountNumber: accountNumber,
+      amount: Amount
+      }),
+    })
       .then((response) => response.json())
+      .then((response) => {return response})
       .catch((error) => console.error(error));
 
     if (data) {
-      return true;
+      return data;
     }
   } catch (error) {
     console.error(error);
@@ -82,17 +100,15 @@ const withdraw = async (cardNumber, cardPin, Amount) => {
   }
 };
 
-const checkBalance = async (cardNumber, cardPin) => {
+const checkBalance = async () => {
   try {
-    if (!cardNumber && !cardPin) {
-      return false;
-    }
-    const data = await fetch(`url`)
-      .then((response) => response.json())
+    const data = await fetch(`${baseUrl}/?accountNo=${accountNumber}`)
+      .then((response) => response.json()
+        .then((response) => { return response }))
       .catch((error) => console.error(error));
 
     if (data) {
-      return true;
+      return data;
     }
   } catch (error) {
     console.error(error);
@@ -111,7 +127,7 @@ async function checkCardNumber() {
     makeErrorNone("card-number", "card-number-error-container");
   }
 
-  result = true;
+  const result = await validateCard(cardNum);
   if (result) {
     makeAllContainerDisplayNone();
     document.getElementById("services-container").style.display = "flex";
@@ -120,9 +136,33 @@ async function checkCardNumber() {
 
 async function showBalance() {
   const balance = await checkBalance();
-  document.getElementById("balance").innerHTML = balance;
-  makeAllContainerDisplayNone();
-  document.getElementById("balance-container").style.display = "flex";
+
+  if (balance) {
+    document.getElementById("balance").innerHTML = balance;
+    makeAllContainerDisplayNone();
+    document.getElementById("balance-container").style.display = "flex";
+  }
+}
+
+async function showDeposit() {
+  const amount = document.getElementById("deposit-value").value;
+  if(deposit%100 != 0){
+    showError(
+      "Please enter amount in multiple of 100",
+      "deposit-value",
+      "deposit-error-container"
+    );
+  }
+  else{
+    makeErrorNone("deposit-value", "deposit-error-container");
+    // call the deposit api
+    const result = await deposit(amount);
+    console.log(result);
+    if (result) {
+      makeAllContainerDisplayNone();
+      document.getElementById("deposit-container").style.display = "flex";
+    }
+  }
 }
 
 function showError(message, inputBoxId, errorContainerId) {
