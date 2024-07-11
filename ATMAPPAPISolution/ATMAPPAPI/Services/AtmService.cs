@@ -69,6 +69,7 @@ namespace ATMAPPAPI.Services
                     AccountDTO accountDTO = new AccountDTO();
                     accountDTO.AccountNumber = cardInfo.AccountNumber;
                     accountDTO.CurrentBalance = decimal.Parse(cardInfo.Balance);
+                    return accountDTO;
                 }
             }
             return null;
