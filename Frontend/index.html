@@ -32,15 +32,15 @@
         <div id="deposit-container" class="input-label-container">
              <div class="heading">DEPOSIT</div>
              <div class="service-label-value">Enter Amount :</div>
-             <input type="number" class="deposit-input-box" />
+             <input type="number" class="deposit-input-box" id="deposit-value"/>
              <div id="deposit-error-container"></div>
-             <button class="submit-button">Deposit</button>
+             <button class="submit-button" onclick="deposit()">Deposit</button>
              <button class="back-button" onclick="backToServicePage()">Back</button>
         </div>
         <div id="withdraw-container" class="input-label-container">
              <div class="heading">WITHDRAW</div>
              <div class="service-label-value">Enter Amount :</div>
-             <input type="number" class="deposit-input-box" />
+             <input type="number" class="deposit-input-box" id="withdraw-amount"/>
              <div id="withdraw-error-container"></div>
              <button class="submit-button">Withdraw</button>
              <button class="back-button" onclick="backToServicePage()">Back</button>
@@ -58,7 +58,7 @@
              <div class="service-label-value">Enter PIN :</div>
              <input type="number" class="deposit-input-box" />
              <div id="pin-error-container"></div>
-             <button class="submit-button">Submit</button>
+             <button class="submit-button" onclick="checkOtp()">Submit</button>
         </div>
       </div>
     </div>
