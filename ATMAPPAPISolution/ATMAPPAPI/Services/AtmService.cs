@@ -11,10 +11,12 @@ namespace ATMAPPAPI.Services
     {
         private readonly ICardValidationService _cardValidationService;
         private readonly ICardOperations _cardOperations;
-        public AtmService(ICardValidationService cardValidationService, ICardOperations cardOperations)
+        private readonly IEmailService _emailService;
+        public AtmService(ICardValidationService cardValidationService, ICardOperations cardOperations, IEmailService emailService)
         {
             _cardValidationService = cardValidationService;
             _cardOperations = cardOperations;
+            _emailService = emailService;
         }
 
         public async Task<AccountDTO> Deposit(string accountNo, decimal amount)
@@ -35,6 +37,7 @@ namespace ATMAPPAPI.Services
                 AccountDTO accountDTO = new AccountDTO();
                 accountDTO.CurrentBalance = parsedBalanced;
                 accountDTO.AccountNumber = cardInfo.AccountNumber;
+                await SendTransactionEmail(accountNo, "Deposit", amount);
                 return accountDTO;
             }
             return null;
@@ -60,6 +63,7 @@ namespace ATMAPPAPI.Services
                     AccountDTO accountDTO = new AccountDTO();
                     accountDTO.CurrentBalance = parsedBalanced;
                     accountDTO.AccountNumber = cardInfo.AccountNumber;
+                    await SendTransactionEmail(accountNo, "Withdraw", amount);
                     return accountDTO;
                 }
             }
@@ -70,7 +74,7 @@ namespace ATMAPPAPI.Services
 
         public async Task<decimal> GetBalance(string accountNo)
         {
-           var cardInfo = await _cardOperations.FindCardInfoAsync("accountNumber", accountNo);
+            var cardInfo = await _cardOperations.FindCardInfoAsync("accountNumber", accountNo);
             if (cardInfo != null)
             {
                 decimal.TryParse(cardInfo.Balance, out decimal parsedBalanced);
@@ -79,14 +83,19 @@ namespace ATMAPPAPI.Services
             throw new InvalidOperationException("Account not found");
         }
 
-        public Task SendOtp(string accountNo)
+        public async Task SendTransactionEmail(string accountNo, string transactionType, decimal amount)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task SendTransactionEmail(string accountNo, string transactionType, decimal amount)
-        {
-            throw new NotImplementedException();
+            var cardInfo = await _cardOperations.FindCardInfoAsync("accountNumber", accountNo);
+            if (cardInfo != null)
+            {
+                var result = await _emailService.SendTransactionMail(cardInfo.Email, accountNo, transactionType, amount);
+                if (result == "Email sent successfully.")
+                {
+                    return;
+                }
+                throw new InvalidOperationException("Error Sending Transaction Mail!");
+            }
+            throw new InvalidOperationException("Account not found");
         }
 
         public async Task<AccountDTO> ValidateCard(string cardNumber, string cvv, DateTime expiryDate)
@@ -106,11 +115,6 @@ namespace ATMAPPAPI.Services
             return null;
         }
 
-        public Task<bool> ValidateOtp(string accountNo, string otp)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<bool> ValidatePin(string accountNo, string pin)
         {
             var cardInfo = await _cardOperations.FindCardInfoAsync("accountNumber", accountNo);
@@ -120,9 +124,5 @@ namespace ATMAPPAPI.Services
             }
             return false;
         }
-
-        
-
-       
     }
 }
