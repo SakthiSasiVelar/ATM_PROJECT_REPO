@@ -2,15 +2,8 @@
 using System.Collections.Concurrent;
 using System.Net.Mail;
 using System.Net;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Gmail.v1.Data;
-using Google.Apis.Gmail.v1;
-using Google.Apis.Services;
-using Google.Apis.Util.Store;
-using System.Text;
-using Google.Apis.Auth.OAuth2.Flows;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
+using ATMAPPAPI.Repositoris;
 
 namespace ATMAPPAPI.Services
 {
@@ -20,20 +13,105 @@ namespace ATMAPPAPI.Services
         = new ConcurrentDictionary<string, (string Otp, DateTime Timestamp)>();
 
         private readonly IMemoryCache _cache;
+        private readonly ICardOperations _cardOperations;
 
-        public EmailService(IMemoryCache cache)
+        public EmailService(IMemoryCache cache, ICardOperations cardOperations)
         {
+            _cardOperations = cardOperations;
             _cache = cache;
         }
 
 
-        public async Task<string> SendOTPMail(string toEmailAddress)
+        public async Task<string> SendOTPMail(string accountNo)
         {
-            var pin = GenerateOTP();
-            otpStore[toEmailAddress] = (pin, DateTime.UtcNow);
-            _cache.Set("OtpStore", otpStore);
+            var cardInfo = await _cardOperations.FindCardInfoAsync("accountNumber", accountNo);
+            if (cardInfo != null)
+            {
+                var pin = GenerateOTP();
+                otpStore[cardInfo.Email] = (pin, DateTime.UtcNow);
+                _cache.Set("OtpStore", otpStore);
 
 
+                var smtpClient = new SmtpClient("smtp.gmail.com")
+                {
+                    Port = 587,
+                    Credentials = new NetworkCredential("i62175973@gmail.com", "emou qcfn elfe nldy"),
+                    EnableSsl = true,
+                };
+
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress("i62175973@gmail.com"),
+                    Subject = "Your OTP Code",
+                    Body = $"Your OTP code is: {pin}",
+                    IsBodyHtml = true,
+                };
+                mailMessage.To.Add(cardInfo.Email);
+
+                try
+                {
+                    await smtpClient.SendMailAsync(mailMessage);
+                    return "Email sent successfully.";
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException("Error Sending OTP!");
+                }
+            }
+            throw new InvalidOperationException("Account not found");
+         
+        }
+
+
+
+        private string GenerateOTP()
+        {
+            var random = new Random();
+            return random.Next(1000, 9999).ToString();
+        }
+
+        public async Task<string> VerifyOtp(string accountNo, string enteredOtp)
+        {
+            var cardInfo = await _cardOperations.FindCardInfoAsync("accountNumber", accountNo);
+            if (cardInfo != null)
+            {
+                var otpStore = _cache.Get<ConcurrentDictionary<string, (string, DateTime)>>("OtpStore");
+                if(otpStore != null)
+                {
+                    if (otpStore.TryGetValue(cardInfo.Email, out var otpData))
+                    {
+                        if ((DateTime.UtcNow - otpData.Item2).TotalHours > 2)
+                        {
+                            return "OTP has expired.";
+                        }
+
+                        if (otpData.Item1 == enteredOtp)
+                        {
+                            return "OTP verified successfully.";
+                        }
+                        else
+                        {
+                            return "Invalid OTP.";
+                        }
+                    }
+                    else
+                    {
+                        return "OTP not found for the given email.";
+                    }
+                }
+                else
+                {
+                    throw new InvalidOperationException("OTP not found for the given email.");
+                }
+            }
+            throw new InvalidOperationException("Account not found");
+           
+        }
+
+
+        public async Task<string> SendTransactionMail(string toEmailAddress, string accountNo, string transactionType, decimal amount)
+        {
+  
             var smtpClient = new SmtpClient("smtp.gmail.com")
             {
                 Port = 587,
@@ -44,8 +122,8 @@ namespace ATMAPPAPI.Services
             var mailMessage = new MailMessage
             {
                 From = new MailAddress("i62175973@gmail.com"),
-                Subject = "Your OTP Code",
-                Body = $"Your OTP code is: {pin}",
+                Subject = "Transaction",
+                Body = $"Your A/c No. {accountNo} has been {transactionType}ed with Rs.{amount}.00 done using ATM transaction. - India Bank",
                 IsBodyHtml = true,
             };
             mailMessage.To.Add(toEmailAddress);
@@ -57,40 +135,7 @@ namespace ATMAPPAPI.Services
             }
             catch (Exception ex)
             {
-                return $"Error sending email: {ex.Message}";
-            }
-        }
-
-
-
-        private string GenerateOTP()
-        {
-            var random = new Random();
-            return random.Next(1000, 9999).ToString();
-        }
-
-        public string VerifyOtp(string toEmailAddress, string enteredOtp)
-        {
-            var otpStore = _cache.Get<ConcurrentDictionary<string, (string, DateTime)>>("OtpStore");
-            if (otpStore.TryGetValue(toEmailAddress, out var otpData))
-            {
-                if ((DateTime.UtcNow - otpData.Item2).TotalHours > 2)
-                {
-                    return "OTP has expired.";
-                }
-
-                if (otpData.Item1 == enteredOtp)
-                {
-                    return "OTP verified successfully.";
-                }
-                else
-                {
-                    return "Invalid OTP.";
-                }
-            }
-            else
-            {
-                return "OTP not found for the given email.";
+                throw new InvalidOperationException("Something went wrong!");
             }
         }
     }

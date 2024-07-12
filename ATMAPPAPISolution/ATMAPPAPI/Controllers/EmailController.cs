@@ -17,11 +17,11 @@ namespace ATMAPPAPI.Controllers
         [HttpPost("SendOTP")]
         [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(JsonResult), StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<string>> SendOTP(string email)
+        public async Task<ActionResult<string>> SendOTP(string accountNo)
         {
             try
             {
-                var result = await _emailService.SendOTPMail(email);
+                var result = await _emailService.SendOTPMail(accountNo);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -36,11 +36,11 @@ namespace ATMAPPAPI.Controllers
         [HttpPost("VerifyOTP")]
         [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(JsonResult), StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<string>> VerifyOTP(string toEmail, string otp)
+        public async Task<ActionResult<string>> VerifyOTP(string accountNo, string otp)
         {
             try
             {
-                var result = _emailService.VerifyOtp(toEmail, otp);
+                var result = await _emailService.VerifyOtp(accountNo, otp);
                 return Ok(result);
             }
             catch (Exception ex)
