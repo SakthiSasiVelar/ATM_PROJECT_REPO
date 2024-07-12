@@ -19,8 +19,13 @@ namespace ATMAPPAPI.Services
 
         public async Task<AccountDTO> Deposit(string accountNo, decimal amount)
         {
+            if (amount > 20000)
+            {
+                throw new ArgumentException("Cannot deposit more than 20000 at one go.");
+            }
+
             var cardInfo = await _cardOperations.FindCardInfoAsync("accountNumber", accountNo);
-            if(cardInfo != null)
+            if (cardInfo != null)
             {
                 decimal.TryParse(cardInfo.Balance, out decimal parsedBalanced);
                 parsedBalanced += amount;
@@ -35,7 +40,33 @@ namespace ATMAPPAPI.Services
             return null;
         }
 
-       
+        public async Task<AccountDTO> Withdraw(string accountNo, decimal amount)
+        {
+            if (amount > 10000)
+            {
+                throw new ArgumentException("Cannot withdraw more than 10000 at one go.");
+            }
+
+            var cardInfo = await _cardOperations.FindCardInfoAsync("accountNumber", accountNo);
+            if (cardInfo != null)
+            {
+                var balance = decimal.TryParse(cardInfo.Balance, out decimal parsedBalanced);
+                if (balance && parsedBalanced >= amount)
+                {
+                    parsedBalanced -= amount;
+                    cardInfo.Balance = parsedBalanced.ToString();
+                    // Update the card info in the JSON file
+                    await _cardOperations.UpdateCardInfoAsync(cardInfo);
+                    AccountDTO accountDTO = new AccountDTO();
+                    accountDTO.CurrentBalance = parsedBalanced;
+                    accountDTO.AccountNumber = cardInfo.AccountNumber;
+                    return accountDTO;
+                }
+            }
+            return null;
+        }
+
+
 
         public async Task<decimal> GetBalance(string accountNo)
         {
@@ -90,26 +121,7 @@ namespace ATMAPPAPI.Services
             return false;
         }
 
-        public async Task<AccountDTO> Withdraw(string accountNo, decimal amount)
-        {
-            var cardInfo = await _cardOperations.FindCardInfoAsync("accountNumber", accountNo);
-            if (cardInfo != null)
-            {
-                var balance = decimal.TryParse(cardInfo.Balance, out decimal parsedBalanced);
-                if ( balance && parsedBalanced >= amount)
-                {
-                    parsedBalanced -= amount;
-                    cardInfo.Balance = parsedBalanced.ToString();
-                    // Update the card info in the JSON file
-                    await _cardOperations.UpdateCardInfoAsync(cardInfo);
-                    AccountDTO accountDTO = new AccountDTO();
-                    accountDTO.CurrentBalance = parsedBalanced;
-                    accountDTO.AccountNumber = cardInfo.AccountNumber;
-                    return accountDTO;
-                }
-            }
-            return null;
-        }
+        
 
        
     }
