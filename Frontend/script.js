@@ -1,19 +1,17 @@
-let cardNumber = "1234 5678 1234 5678";
-let cardPin = "1234";
 const depositAmount = 20000;
 const withdrawAmount = 10000;
 
 var accountNumber;
 var currentBalance;
 
-const baseUrl = "https://localhost:7151/api/ATMService"
+const baseUrl = "https://localhost:7151/api/ATMService";
 
 const validateCard = async (cardNumber) => {
   try {
     const data = await fetch(`${baseUrl}/validate-card`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(cardNumber),
     })
@@ -24,9 +22,8 @@ const validateCard = async (cardNumber) => {
         return true;
       })
       .catch((error) => {
-        console.error(error)
+        console.error(error);
         return false;
-
       });
 
     if (data) {
@@ -56,18 +53,20 @@ const validatePin = async (cardNumber, cardPin) => {
 
 const deposit = async (Amount) => {
   try {
-    const data = await fetch(`${baseUrl}/Deposit`, {
-      method: 'POST',
+    const data = await fetch(`${baseUrl}/Deposite`, {
+      method: "POST",
       headers: {
-      'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-      accountNumber: accountNumber,
-      amount: Amount
+        accountNumber: accountNumber,
+        amount: Amount,
       }),
     })
       .then((response) => response.json())
-      .then((response) => {return response})
+      .then((response) => {
+        return response;
+      })
       .catch((error) => console.error(error));
 
     if (data) {
@@ -78,22 +77,26 @@ const deposit = async (Amount) => {
   }
 };
 
-const withdraw = async (cardNumber, cardPin, Amount) => {
+const withdraw = async (Amount) => {
   try {
-    if (!cardNumber || !cardPin || Amount > 0 || withdrawAmount <= Amount) {
-      showError(
-        "Please enter valid amount",
-        "withdraw-value",
-        "withdraw-error-container"
-      );
-    }
-    makeErrorNone("withdraw-amount", "withdraw-error-container");
-    const data = await fetch(`url`)
+    const data = await fetch(`${baseUrl}/Withdraw`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        accountNumber: accountNumber,
+        amount: Amount,
+      }),
+    })
       .then((response) => response.json())
+      .then((response) => {
+        return response;
+      })
       .catch((error) => console.error(error));
 
     if (data) {
-      return true;
+      return data;
     }
   } catch (error) {
     console.error(error);
@@ -103,8 +106,11 @@ const withdraw = async (cardNumber, cardPin, Amount) => {
 const checkBalance = async () => {
   try {
     const data = await fetch(`${baseUrl}/?accountNo=${accountNumber}`)
-      .then((response) => response.json()
-        .then((response) => { return response }))
+      .then((response) =>
+        response.json().then((response) => {
+          return response;
+        })
+      )
       .catch((error) => console.error(error));
 
     if (data) {
@@ -145,22 +151,49 @@ async function showBalance() {
 }
 
 async function showDeposit() {
+  makeAllContainerDisplayNone();
+  document.getElementById("deposit-container").style.display = "flex";
+}
+
+const validateDeposite = async () => {
   const amount = document.getElementById("deposit-value").value;
-  if(deposit%100 != 0){
+  console.log(amount);
+  if (amount % 100 != 0) {
     showError(
       "Please enter amount in multiple of 100",
       "deposit-value",
       "deposit-error-container"
     );
-  }
-  else{
+  } else {
     makeErrorNone("deposit-value", "deposit-error-container");
-    // call the deposit api
     const result = await deposit(amount);
     console.log(result);
     if (result) {
       makeAllContainerDisplayNone();
       document.getElementById("deposit-container").style.display = "flex";
+    }
+  }
+};
+
+async function showWithdraw() {
+  makeAllContainerDisplayNone();
+  document.getElementById("withdraw-container").style.display = "flex";
+}
+
+async function validateWithdraw() {
+  const amount = document.getElementById("withdraw-amount").value;
+  if (amount % 100 != 0) {
+    showError(
+      "Please enter amount in multiple of 100",
+      "withdraw-amount",
+      "withdraw-error-container"
+    );
+  } else {
+    makeErrorNone("withdraw-amount", "withdraw-error-container");
+    const result = await withdraw(amount);
+    if (result) {
+      makeAllContainerDisplayNone();
+      document.getElementById("withdraw-container").style.display = "flex";
     }
   }
 }
