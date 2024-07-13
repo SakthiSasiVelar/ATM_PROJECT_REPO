@@ -8,7 +8,7 @@ namespace ATMAPPAPI.Repositoris
         public async Task<CardInfoDTO> FindCardInfoAsync(string searchType, string searchValue)
         {
             // Path to your cardinfo.json file
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "cardinfo.json");
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "cardInfo.json");
 
             // Read the JSON file
             string jsonData = await File.ReadAllTextAsync(filePath);
@@ -18,14 +18,13 @@ namespace ATMAPPAPI.Repositoris
 
             // Search for the card info based on the search type and value
             CardInfoDTO cardInfo = null;
-
             if (searchType.Equals("cardNumber", StringComparison.OrdinalIgnoreCase))
             {
-                cardInfo = cardInfoList?.FirstOrDefault(c => c.CardNumber == searchValue);
+                cardInfo = cardInfoList.FirstOrDefault(c => c.CardNumber.Equals(searchValue, StringComparison.OrdinalIgnoreCase));
             }
             else if (searchType.Equals("accountNumber", StringComparison.OrdinalIgnoreCase))
             {
-                cardInfo = cardInfoList?.FirstOrDefault(c => c.AccountNumber == searchValue);
+                cardInfo = cardInfoList.FirstOrDefault(c => c.AccountNumber.Equals(searchValue, StringComparison.OrdinalIgnoreCase));
             }
 
             return cardInfo;
@@ -33,7 +32,7 @@ namespace ATMAPPAPI.Repositoris
         public async Task UpdateCardInfoAsync(CardInfoDTO updatedCardInfo)
         {
             // Path to your cardinfo.json file
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "cardinfo.json");
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "cardInfo.json");
 
             // Read the JSON file
             string jsonData = await File.ReadAllTextAsync(filePath);

@@ -1,59 +1,41 @@
 const depositAmount = 20000;
 const withdrawAmount = 10000;
 
+
 var accountNumber;
 var currentBalance;
+var currentservice;
 
-const baseUrl = "https://localhost:7151/api/ATMService";
+const baseUrl = "https://localhost:7151/api";
 
 const validateCard = async (cardNumber) => {
   try {
-    const data = await fetch(`${baseUrl}/validate-card`, {
+    const response = await fetch(`${baseUrl}/ATMService/validate-card`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(cardNumber),
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        accountNumber = response.accountNumber;
-        currentBalance = response.currentBalance;
-        return true;
-      })
-      .catch((error) => {
-        console.error(error);
-        return false;
-      });
+    });
+    const data = await response.json();
 
-    if (data) {
-      return true;
-    }
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-const validatePin = async (cardNumber, cardPin) => {
-  try {
-    if (!cardNumber && !cardPin && cardPin.length === 4) {
+    if (data.errorCode && data.errorCode == 404) {
+      showError(data.errorMessage, 'card-number', 'card-number-error-container');
       return false;
     }
-    const data = await fetch(`url`)
-      .then((response) => response.json())
-      .catch((error) => console.error(error));
-
-    if (data) {
-      return true;
-    }
+    accountNumber = data.accountNumber;
+    currentBalance = data.currentBalance;
+    return true;
   } catch (error) {
     console.error(error);
+    return false;
   }
 };
 
-const deposit = async (Amount) => {
+async function deposit(Amount) {
   try {
-    const data = await fetch(`${baseUrl}/Deposite`, {
+    console.log("Sending request...");
+    var response = await fetch(`${baseUrl}/ATMService/Deposite`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -62,24 +44,132 @@ const deposit = async (Amount) => {
         accountNumber: accountNumber,
         amount: Amount,
       }),
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        return response;
-      })
-      .catch((error) => console.error(error));
+    });
+    console.log(response);
+    if(!response.ok ){
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log("Response data:", data);
+    
+    if (data.errorCode && data.errorCode == 404) {
+      return false;
+    }
+  } catch (error) {
+    console.error("Error during fetch:", error.message);
+    return false;
+  }
+}
 
-    if (data) {
-      return data;
+const sendOtp = async () => {
+  try {
+    const response = await fetch(`${baseUrl}/Email/SendOTP?accountNo=${accountNumber}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if(response.ok){
+      return true;
+    }
+    const data = await response.json();
+    if (data.errorCode && data.errorCode == 404) {
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+}
+
+async function validatePin(pin) {
+  try {
+    const response = await fetch(`${baseUrl}/ATMService/validate-pin`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        accountNumber: accountNumber,
+        pin: pin
+      }),
+    });
+    if(response.ok){
+      return true;
+    }
+    const data = await response.json();
+    if (data.errorCode && data.errorCode == 404) {
+       showError("Please enter valid PIN", "pin-value", "pin-error-container");
+      return false;
     }
   } catch (error) {
     console.error(error);
+    return false;
   }
-};
+}
+
+async function getOtp(service) {
+  currentservice = service;
+  const result = await sendOtp();
+  if (result) {
+    showOtpPage();
+  }
+}
+
+async function verifyOtp(){
+  const otp = document.getElementById('otp-value').value;
+  if(otp.length!= 4){
+    showError("Please enter valid OTP", "otp-value", "otp-error-container");
+    return;
+  }
+  else{
+    makeErrorNone("otp-value", "otp-error-container");
+  }
+  const result = await validateOtp(otp);
+  if (result) {
+    document.getElementById('otp-value').value = '';
+    makeAllContainerDisplayNone();
+    if(currentservice == 'balance'){
+      showBalance()
+    }
+    else if(currentservice == 'deposit'){
+      document.getElementById('deposit-container').style.display = 'flex';
+    }
+    else{
+      document.getElementById('withdraw-container').style.display = 'flex';
+    }
+  }
+}
+
+async function validateOtp(otp){
+  try {
+    const response = await fetch(`${baseUrl}/Email/VerifyOTP?accountNo=${accountNumber}&otp=${otp}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    if (data.value.result == 'Invalid OTP.') {
+      showError("Please enter valid OTP", "otp-value", "otp-error-container");
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+}
+
+function showOtpPage() {
+  makeAllContainerDisplayNone();
+  document.getElementById('otp-container').style.display = 'flex';
+}
 
 const withdraw = async (Amount) => {
   try {
-    const data = await fetch(`${baseUrl}/Withdraw`, {
+    const response = await fetch(`${baseUrl}/ATMService/Withdraw`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -88,39 +178,13 @@ const withdraw = async (Amount) => {
         accountNumber: accountNumber,
         amount: Amount,
       }),
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        return response;
-      })
-      .catch((error) => console.error(error));
-
-    if (data) {
-      return data;
-    }
+    });
+    return true;
   } catch (error) {
     console.error(error);
+    return false;
   }
 };
-
-const checkBalance = async () => {
-  try {
-    const data = await fetch(`${baseUrl}/?accountNo=${accountNumber}`)
-      .then((response) =>
-        response.json().then((response) => {
-          return response;
-        })
-      )
-      .catch((error) => console.error(error));
-
-    if (data) {
-      return data;
-    }
-  } catch (error) {
-    console.error(error);
-  }
-};
-
 async function checkCardNumber() {
   const cardNum = document.getElementById("card-number").value;
   if (cardNum.length != 16) {
@@ -136,7 +200,22 @@ async function checkCardNumber() {
   const result = await validateCard(cardNum);
   if (result) {
     makeAllContainerDisplayNone();
-    document.getElementById("services-container").style.display = "flex";
+    document.getElementById("pin-container").style.display = "flex";
+  }
+}
+
+async function checkPin() {
+  const pin = document.getElementById("pin-value").value;
+  if (pin.length!= 4) {
+    showError("Please enter valid PIN", "pin-value", "pin-error-container");
+  } else {
+    makeErrorNone("pin-value", "pin-error-container");
+    const result = await validatePin(pin.toString());
+    console.log(result)
+    if(result){
+      makeAllContainerDisplayNone();
+      document.getElementById("services-container").style.display = "flex";
+    }
   }
 }
 
@@ -155,10 +234,16 @@ async function showDeposit() {
   document.getElementById("deposit-container").style.display = "flex";
 }
 
-const validateDeposite = async () => {
+
+async function validateDeposit() {
   const amount = document.getElementById("deposit-value").value;
-  console.log(amount);
-  if (amount % 100 != 0) {
+  if (amount > 20000) {
+    showError(
+      "Maximum deposit amount is 20000",
+      "deposit-value",
+      "deposit-error-container"
+    );
+  } else if (amount % 100 != 0) {
     showError(
       "Please enter amount in multiple of 100",
       "deposit-value",
@@ -166,14 +251,24 @@ const validateDeposite = async () => {
     );
   } else {
     makeErrorNone("deposit-value", "deposit-error-container");
-    const result = await deposit(amount);
-    console.log(result);
-    if (result) {
-      makeAllContainerDisplayNone();
-      document.getElementById("deposit-container").style.display = "flex";
-    }
+     const result = await deposit(amount.toString());
+     
+     setTimeout(()=>{
+        alert('Deposit successfully');
+
+     },3000)
+     
+    
+    
   }
-};
+}
+
+document.getElementById('deposit-submit-btn').addEventListener('click', async (event) => {
+  event.preventDefault();
+  await validateDeposit();
+});
+
+
 
 async function showWithdraw() {
   makeAllContainerDisplayNone();
@@ -182,28 +277,46 @@ async function showWithdraw() {
 
 async function validateWithdraw() {
   const amount = document.getElementById("withdraw-amount").value;
-  if (amount % 100 != 0) {
+  if(amount > 10000){
+    showError(
+      "Maximum withdrawal amount is 10000",
+      "withdraw-amount",
+      "withdraw-error-container"
+    )
+  }
+  else if (amount % 100 != 0) {
     showError(
       "Please enter amount in multiple of 100",
       "withdraw-amount",
       "withdraw-error-container"
     );
-  } else {
+  } 
+  else {
     makeErrorNone("withdraw-amount", "withdraw-error-container");
-    const result = await withdraw(amount);
-    if (result) {
-      makeAllContainerDisplayNone();
-      document.getElementById("withdraw-container").style.display = "flex";
-    }
+    await withdraw(amount);
+    alert('withdraw successfully')
   }
 }
 
+const checkBalance = async () => {
+  try {
+    const response = await fetch(`${baseUrl}/ATMService?accountNo=${accountNumber}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
 function showError(message, inputBoxId, errorContainerId) {
-  const inputBox = document.getElementById(inputBoxId);
-  const errorContainer = document.getElementById(errorContainerId);
+  var inputBox = document.getElementById(inputBoxId);
+  var errorContainer = document.getElementById(errorContainerId);
   inputBox.style.borderColor = "Red";
   inputBox.style.outlineColor = "Red";
-  errorContainer.innerHTML = message;
+  errorContainer.textContent = message;
+  errorContainer.style.display = 'block';
+  errorContainer.style.color = 'red'
 }
 
 function makeErrorNone(inputBoxId, errorContainerId) {
