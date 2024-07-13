@@ -1,4 +1,5 @@
-﻿using ATMAPPAPI.Services;
+﻿using ATMAPPAPI.Models.DTOs;
+using ATMAPPAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ATMAPPAPI.Controllers
@@ -41,7 +42,10 @@ namespace ATMAPPAPI.Controllers
             try
             {
                 var result = await _emailService.VerifyOtp(accountNo, otp);
-                return Ok(result);
+                return Ok(new JsonResult(new
+                {
+                    result = result
+                })); 
             }
             catch (Exception ex)
             {
