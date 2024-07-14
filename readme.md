@@ -58,3 +58,11 @@
   - **GetBalance:** Retrieves the current balance of an account.
   - **Deposit:** Allows depositing a specified amount into an account.
   - **Withdraw:** Allows withdrawing a specified amount from an account.
+
+### Contributor: Venkat Raman S P
+
+- **Contribution:** Developed robust endpoints for Email Services using SMTP, including:
+  - **SendOTP:** Sends a One-Time Password (OTP) to the customer's email linked with their account number.
+  - **VerifyOTP:** Validates the OTP and notifies the user accordingly.
+  - **TransactionMail:** Dispatches transaction emails to users following deposits or withdrawals.
+
