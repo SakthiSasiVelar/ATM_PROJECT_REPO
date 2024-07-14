@@ -1,3 +1,5 @@
+### Video Link: [ATM Service](https://drive.google.com/file/d/1q1Al1YADP_m2Rz0oQ5szBQgD7okXUpEd/view?usp=sharing)
+
 1. **Card Validation:**
    - User enters card details (card number, CVV, expiry date).
    - Validate the card details against industry standards (e.g., Luhn algorithm for card number).
@@ -45,3 +47,14 @@
      - Send a debited transaction email with details (amount, timestamp, etc.).
    - For deposit:
      - Send a credited transaction email with details.
+
+## Contribution
+
+### Contributor: Anup
+
+- **Contribution:** Developed backend endpoints for the ATM service microservice. This includes:
+  - **ValidateCard:** Validates the card number, CVV, and expiry date.
+  - **ValidatePin:** Validates the provided PIN for a given account.
+  - **GetBalance:** Retrieves the current balance of an account.
+  - **Deposit:** Allows depositing a specified amount into an account.
+  - **Withdraw:** Allows withdrawing a specified amount from an account.
