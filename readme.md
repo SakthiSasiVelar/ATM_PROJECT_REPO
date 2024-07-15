@@ -73,5 +73,12 @@
    - **Integration** Integrated backend end api in frontend
    - **Ui** : Developed ui for the application
    - **Backend/Frontend** : solved bugs in frontend and backend.
+ 
+### Contributor : kameshwaran M
+
+- **Contribution:** Mainly focused on frontend part (Javascript,integration)
+   - **Integration** Integrated backend end api in frontend
+   - **Ux** : Developed ux for the application
+   - **Backend/Frontend** : solved bugs in frontend and backend.
 
 
