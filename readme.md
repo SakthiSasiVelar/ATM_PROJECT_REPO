@@ -68,10 +68,10 @@
  
 ### Contributor : Sakthi K P
 
--**Contribution:** Mainly focused on frontend part (ui , integration)
-   -**Leadership:** managed the team of 4 members , helped in separating the work and  git collaboration.
-   -**Integration** Integrated backend end api in frontend
-   -**Ui** : Developed ui for the application
-   -**Backend/Frontend** : solved bugs in frontend and backend.
+- **Contribution:** Mainly focused on frontend part (ui , integration)
+   - **Leadership:** managed the team of 4 members , helped in separating the work and  git collaboration.
+   - **Integration** Integrated backend end api in frontend
+   - **Ui** : Developed ui for the application
+   - **Backend/Frontend** : solved bugs in frontend and backend.
 
 
