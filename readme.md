@@ -65,4 +65,13 @@
   - **SendOTP:** Sends a One-Time Password (OTP) to the customer's email linked with their account number.
   - **VerifyOTP:** Validates the OTP and notifies the user accordingly.
   - **TransactionMail:** Dispatches transaction emails to users following deposits or withdrawals.
+ 
+### Contributor : Sakthi K P
+
+-**Contribution:** Mainly focused on frontend part (ui , integration)
+   -**Leadership:** managed the team of 4 members , helped in separating the work and  git collaboration.
+   -**Integration** Integrated backend end api in frontend
+   -**Ui** : Developed ui for the application
+   -**Backend/Frontend** : solved bugs in frontend and backend.
+
 
